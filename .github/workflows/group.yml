@@ -22,16 +22,22 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       
-      # Combined step to install dependencies and run Pylint
       - name: Install dependencies and Run Pylint
         run: |
+          python -m venv venv
+          source venv/bin/activate
           python -m pip install --upgrade pip
-          pip install django  # Ensure Django is installed
+          
+          # Install project dependencies
           if [ -f requirements.txt ]; then
             pip install -r requirements.txt
           fi
+          pip install django  # Explicitly install Django as a failsafe
+          
+          # Install linter
           pip install pylint
           
+          # Run Pylint
           echo "Running Pylint..."
           pylint $(git ls-files "*.py")
 
@@ -48,17 +54,20 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Install dependencies and Run Django tests
         run: |
+          python -m venv venv
+          source venv/bin/activate
           python -m pip install --upgrade pip
-          pip install django  # Ensure Django is installed
+
+          # Install project dependencies and testing tools
           if [ -f requirements.txt ]; then
             pip install -r requirements.txt
           fi
+          pip install django  # Explicitly install Django as a failsafe
           pip install coverage pytest
 
-      - name: Run Django tests with coverage
-        run: |
+          # Run Django tests
           echo "Running Django tests..."
           coverage run -m pytest
         continue-on-error: true
@@ -66,6 +75,7 @@ jobs:
       - name: Show coverage report
         if: always()
         run: |
+          source venv/bin/activate
           coverage report -m
 
   deploy:
