@@ -1,12 +1,24 @@
-name: Python test
+name: Python Test
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
 
 jobs:
   tests:
     runs-on: ubuntu-latest
     env:
-        VENV: venv
+      VENV: venv
+
+    strategy:
+      matrix:
+        python-version: ['3.9', '3.10', '3.11']
 
     steps:
       - name: Checkout code
@@ -15,21 +27,51 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: ${{ matrix.python-version }}
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Set up virtual environment
+        run: python -m venv $VENV
 
       - name: Install dependencies
         run: |
-          python -m venv $VENV
           source $VENV/bin/activate
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pylint
+          pip install pylint coverage pytest
 
-      - name: Run tests
+      - name: Run tests with coverage
         run: |
           source $VENV/bin/activate
-          pytest
+          coverage run -m pytest
+          coverage report -m
+        continue-on-error: false
 
       - name: Run Pylint
         run: |
           source $VENV/bin/activate
           pylint june25_classdemo2/
+        continue-on-error: true # Allow pipeline to continue if linting fails
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results-${{ matrix.python-version }}
+          path: .coverage
+
+      - name: Notify on failure
+        if: failure()
+        uses: slack/send@v3
+        with:
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          text: "Python Test failed on Python ${{ matrix.python-version }}! Check the run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
