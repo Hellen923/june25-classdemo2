@@ -45,7 +45,6 @@ jobs:
           source $VENV/bin/activate
           coverage run -m pytest
           coverage report -m
-        continue-on-error: false
 
       - name: Run Pylint
         run: |
