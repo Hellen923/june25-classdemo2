@@ -5,6 +5,8 @@ on: [push, pull_request]
 jobs:
   tests:
     runs-on: ubuntu-latest
+    env:
+        VENV: venv
 
     steps:
       - name: Checkout code
@@ -17,12 +19,16 @@ jobs:
 
       - name: Install dependencies
         run: |
+          python -m venv $VENV
+          source $VENV/bin/activate
           pip install -r requirements.txt
+          pip install pylint
 
       - name: Run tests
         run: |
+          source $VENV/bin/activate
           pytest
-
       - name: Run Pylint
         run: |
+          source $VENV/bin/activate
           pylint --disable=all --enable=error,warning,refactor,convention .
