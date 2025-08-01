@@ -9,4 +9,14 @@ jobs:
       - name: Print Group Name
         run: echo "This is our group workflow"
 
-        
+      - name: Print Group Members
+        run: |
+          echo "Printing a list of names:"
+          echo "1. Emmanuel"
+          echo "2. Racheal"
+          echo "3. Martha"
+          echo "4. Patience"
+          echo "5. Veronica"
+          echo "6. Benjamin"
+          echo "7. Hellen"
+
