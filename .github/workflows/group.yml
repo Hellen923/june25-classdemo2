@@ -15,7 +15,6 @@ jobs:
     env:
       VENV: venv
 
-    # Explicit permissions
     permissions:
       contents: read
 
