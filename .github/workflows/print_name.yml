@@ -1,0 +1,19 @@
+name: Names 
+
+on:
+  push:  # Trigger the workflow whenever code is pushed
+    branches:
+      - main  # or your default branch
+
+jobs:
+  print-names-job:
+    runs-on: ubuntu-latest  # Use GitHub's Ubuntu runner
+
+    steps:
+      - name: Print Names
+        run: |
+          echo "Printing a list of names:"
+          echo "1. Hellen"
+          echo "2. Racheal"
+          echo "3. Charlie"
+          echo "4. Diana"

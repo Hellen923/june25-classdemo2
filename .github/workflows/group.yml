@@ -1,0 +1,12 @@
+name: Group Workflow
+
+on: [push]
+
+jobs:
+  print_group_name:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print Group Name
+        run: echo "This is our group workflow"
+
+        
