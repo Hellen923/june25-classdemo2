@@ -28,6 +28,7 @@ jobs:
         run: |
           source $VENV/bin/activate
           pytest
+
       - name: Run Pylint
         run: |
           source $VENV/bin/activate
