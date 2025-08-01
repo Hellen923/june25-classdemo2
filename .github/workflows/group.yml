@@ -2,23 +2,18 @@ name: Python Test
 
 on:
   push:
-    branches:
-      - main
-      - develop
+    branches: [main, develop]
   pull_request:
-    branches:
-      - main
-      - develop
+    branches: [main, develop]
 
 jobs:
   tests:
     runs-on: ubuntu-latest
-    env:
-      VENV: venv
-
     strategy:
       matrix:
         python-version: ['3.9', '3.10', '3.11']
+    env:
+      VENV: venv
 
     steps:
       - name: Checkout code
@@ -37,13 +32,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
 
-      - name: Set up virtual environment
-        run: python -m venv $VENV
-
-      - name: Install dependencies
+      - name: Set up virtual environment and install dependencies
         run: |
+          python -m venv $VENV
           source $VENV/bin/activate
-          python -m pip install --upgrade pip
+          pip install --upgrade pip
           pip install -r requirements.txt
           pip install pylint coverage pytest
 
@@ -58,7 +51,7 @@ jobs:
         run: |
           source $VENV/bin/activate
           pylint june25_classdemo2/
-        continue-on-error: true # Allow pipeline to continue if linting fails
+        continue-on-error: true
 
       - name: Upload test results
         if: always()
@@ -69,9 +62,11 @@ jobs:
 
       - name: Notify on failure
         if: failure()
-        uses: slack/send@v3
+        uses: slackapi/slack-github-action@v1.23.0
         with:
-          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
-          text: "Python Test failed on Python ${{ matrix.python-version }}! Check the run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          payload: |
+            {
+              "text": "❌ Python Test failed on Python ${{ matrix.python-version }}.\n🔗 [View Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+            }
         env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
