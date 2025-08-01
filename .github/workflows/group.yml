@@ -1,26 +1,33 @@
-name: Group Workflow
+name: Python test
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
-  print_group_name:
+  tests:
     runs-on: ubuntu-latest
+    env:
+        VENV: venv
+
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Print Group Name
-        run: echo "This is our group workflow"
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
 
-      - name: Print Group Members
+      - name: Install dependencies
         run: |
-          echo "Printing a list of names:"
-          echo "1. Emmanuel"
-          echo "2. Racheal"
-          echo "3. Martha"
-          echo "4. Patience"
-          echo "5. Veronica"
-          echo "6. Benjamin"
-          echo "7. Hellen"
-          echo "8. Conrad"
+          python -m venv $VENV
+          source $VENV/bin/activate
+          pip install -r requirements.txt
 
+      - name: Run tests
+        run: |
+          source $VENV/bin/activate
+          pytest
+      - name: Run Pylint
+        run: |
+          source $VENV/bin/activate
+          pylint --disable=all --enable=error,warning,refactor,convention .
