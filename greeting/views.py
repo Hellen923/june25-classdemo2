@@ -1,9 +1,16 @@
-from django.shortcuts import render
+"""
+This module contains the views for the greeting application.
+"""
 from django.http import HttpResponse
 
 def hello_world(request):
     """
     Handles a request to the hello world page.
-    Returns a simple HTTP response with the text "Hello, World!".
+
+    Args:
+        request: The HTTP request object.
+
+    Returns:
+        An HttpResponse with the text "Hello, World!".
     """
     return HttpResponse("Hello, World!")
